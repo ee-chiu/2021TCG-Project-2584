@@ -99,17 +99,35 @@ private:
 class player : public random_agent {
 public:
 	player(const std::string& args = "") : random_agent("name=dummy role=player " + args),
-		opcode({ 0, 1, 2, 3 }) {}
+		opcode({ 0, 1, 2, 3 }), play_style(0){
+			if(meta.find("random") != meta.end())
+				play_style = 0;
+			else if(meta.find("greedy") != meta.end())
+				play_style = 1;
+			else if(meta.find("heuristic") != meta.end())
+				play_style = 2;
+		}
 
 	virtual action take_action(const board& before) {
-		std::shuffle(opcode.begin(), opcode.end(), engine);
-		for (int op : opcode) {
-			board::reward reward = board(before).slide(op);
-			if (reward != -1) return action::slide(op);
+		if (play_style == 0){
+			std::shuffle(opcode.begin(), opcode.end(), engine);
+			for (int op : opcode) {
+				board::reward reward = board(before).slide(op);
+				if (reward != -1) return action::slide(op);
+			}
+		}
+
+		else if (play_style == 1){
+			
+		}
+
+		else if (play_style == 2){
+
 		}
 		return action();
 	}
 
 private:
 	std::array<int, 4> opcode;
+	int play_style;
 };
