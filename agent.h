@@ -118,7 +118,17 @@ public:
 		}
 
 		else if (play_style == 1){
-			
+			int best_op = -1;
+			board::reward best_reward = -1;
+			for (int op : opcode){
+				board::reward reward = board(before).slide(op); 
+				if (reward == -1) continue;
+				if (reward > best_reward) {
+					best_reward = reward; 
+					best_op = op;
+				}
+			}
+			return action::slide(best_op);
 		}
 
 		else if (play_style == 2){
