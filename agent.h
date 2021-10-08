@@ -102,9 +102,9 @@ public:
 		opcode({ 0, 1, 2, 3 }), play_style(0){
 			if(meta.find("random") != meta.end())
 				play_style = 0;
-			else if(meta.find("greedy") != meta.end())
+			else if(meta.find("greedy1") != meta.end())
 				play_style = 1;
-			else if(meta.find("heuristic") != meta.end())
+			else if(meta.find("greedy2") != meta.end())
 				play_style = 2;
 		}
 
@@ -132,7 +132,27 @@ public:
 		}
 
 		else if (play_style == 2){
+			int best_op = -1;
+			board::reward best_reward = -1;
+			for(int op1 : opcode){
+				board next_1_state;
+				next_1_state.operator=(before);
+				board::reward reward1 = next_1_state.slide(op1);
+				if(reward1 < 0) continue;
 
+				for(int op2 : opcode){
+					board next_2_state;
+					next_2_state.operator=(next_1_state);
+					board::reward reward2 = next_2_state.slide(op2);
+					if(reward2 < 0) continue;
+
+					if(reward1 + reward2 > best_reward){
+						best_op = op1;
+						best_reward = reward1 + reward2;
+					}
+				}
+			}
+			return action::slide(best_op);
 		}
 		return action();
 	}
