@@ -149,6 +149,18 @@ public:
 		net[6][extract_feature(after, 2, 6, 10, 14)] += adjust;
 		net[7][extract_feature(after, 3, 7, 11, 15)] += adjust;
 	}
+
+	virtual void open_episode(const std::string &flag = ""){
+		history.clear();
+	}
+
+	virtual void close_episode(const std::string &flag = ""){
+		if(history.empty()) return;
+		if(alpha == 0) return;
+		adjust_value(history.back().after, 0);
+		for(int i = history.size() - 2 ; i >= 0 ; i--)
+			adjust_value(history[i].after, history[i + 1].reward + estimate_value(history[i + 1].after));
+	}
 protected:
 	virtual void init_weights(const std::string& info) {
 		net.emplace_back(25 * 25 * 25 * 25);	
