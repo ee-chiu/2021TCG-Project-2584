@@ -72,6 +72,15 @@ protected:
  */
 class weight_agent : public agent {
 public:
+	int opcode[4] = {0, 1, 2, 3};
+
+	struct step {
+		board::reward reward;
+		board after;
+	};
+
+	std::vector<step> history;
+
 	weight_agent(const std::string& args = "") : agent(args), alpha(0) {
 		if (meta.find("init") != meta.end())
 			init_weights(meta["init"]);
@@ -100,6 +109,31 @@ public:
 		value += net[6][extract_feature(after, 2, 6, 10, 14)];
 		value += net[7][extract_feature(after, 3, 7, 11, 15)];
 		return value;
+	}
+
+	virtual action take_action(const board& before) {
+		int best_op = -1;
+		board::reward best_reward = -1;
+		float best_value = -10000000.0;
+		board best_after;
+
+		for(int op : opcode) {
+			board after = before;
+			board::reward reward = after.slide(op);
+			if(reward == -1) continue;
+
+			float value = estimate_value(after);
+			if(reward + value > best_reward + best_value){
+				best_op = op;
+				best_reward = reward;
+				best_value = value;
+				best_after = after;
+			}
+		}
+
+		if(best_op != -1) history.push_back({best_reward, best_after});
+
+		return action::slide(best_op);
 	}
 
 protected:
