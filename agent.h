@@ -85,6 +85,23 @@ public:
 			save_weights(meta["save"]);
 	}
 
+	int extract_feature(const board &after, int a, int b, int c, int d){
+		return after(a) * 25 * 25 * 25 + after(b) * 25 * 25 + after(c) * 25 + after(d);
+	}
+
+	float estimate_value(const board &after){
+		float value = 0.0;
+		value += net[0][extract_feature(after, 0, 1, 2, 3)];
+		value += net[1][extract_feature(after, 4, 5, 6, 7)];
+		value += net[2][extract_feature(after, 8, 9, 10, 11)];
+		value += net[3][extract_feature(after, 12, 13, 14, 15)];
+		value += net[4][extract_feature(after, 0, 4, 8, 12)];
+		value += net[5][extract_feature(after, 1, 5, 9, 13)];
+		value += net[6][extract_feature(after, 2, 6, 10, 14)];
+		value += net[7][extract_feature(after, 3, 7, 11, 15)];
+		return value;
+	}
+
 protected:
 	virtual void init_weights(const std::string& info) {
 		net.emplace_back(25 * 25 * 25 * 25);	
