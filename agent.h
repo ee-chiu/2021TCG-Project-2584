@@ -290,3 +290,17 @@ private:
 	std::array<int, 4> opcode;
 	int play_style;
 };
+
+/**
+ * player for TD learning
+ */
+class TD_player : public weight_agent {
+public:
+	TD_player(const std::string& args = "") : weight_agent("name=TD role=player " + args) {
+		;
+	}
+
+private:
+	std::array<int, 4> opcode;
+	int play_style;
+};
