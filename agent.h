@@ -87,8 +87,14 @@ public:
 
 protected:
 	virtual void init_weights(const std::string& info) {
-//		net.emplace_back(65536); // create an empty weight table with size 65536
-//		net.emplace_back(65536); // create an empty weight table with size 65536
+		net.emplace_back(25 * 25 * 25 * 25);	
+		net.emplace_back(25 * 25 * 25 * 25);	
+		net.emplace_back(25 * 25 * 25 * 25);	
+		net.emplace_back(25 * 25 * 25 * 25);	
+		net.emplace_back(25 * 25 * 25 * 25);	
+		net.emplace_back(25 * 25 * 25 * 25);	
+		net.emplace_back(25 * 25 * 25 * 25);	
+		net.emplace_back(25 * 25 * 25 * 25);	
 	}
 	virtual void load_weights(const std::string& path) {
 		std::ifstream in(path, std::ios::in | std::ios::binary);
