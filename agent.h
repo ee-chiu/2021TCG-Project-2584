@@ -136,6 +136,19 @@ public:
 		return action::slide(best_op);
 	}
 
+	void adjust_value(const board &after, float target){
+		float cur = estimate_value(after);
+		float err = target - cur;
+		float adjust = alpha * err;
+		net[0][extract_feature(after, 0, 1, 2, 3)] += adjust;
+		net[1][extract_feature(after, 4, 5, 6, 7)] += adjust;
+		net[2][extract_feature(after, 8, 9, 10, 11)] += adjust;
+		net[3][extract_feature(after, 12, 13, 14, 15)] += adjust;
+		net[4][extract_feature(after, 0, 4, 8, 12)] += adjust;
+		net[5][extract_feature(after, 1, 5, 9, 13)] += adjust;
+		net[6][extract_feature(after, 2, 6, 10, 14)] += adjust;
+		net[7][extract_feature(after, 3, 7, 11, 15)] += adjust;
+	}
 protected:
 	virtual void init_weights(const std::string& info) {
 		net.emplace_back(25 * 25 * 25 * 25);	
