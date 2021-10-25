@@ -144,16 +144,19 @@ public:
 		float cur = estimate_value(after);
 		float err = target - cur;
 		float adjust = alpha * err;
-		net[0][extract_feature(after, 0, 1, 2, 3)] += adjust;
-		net[1][extract_feature(after, 4, 5, 6, 7)] += adjust;
-		net[2][extract_feature(after, 8, 9, 10, 11)] += adjust;
-		net[3][extract_feature(after, 12, 13, 14, 15)] += adjust;
-		net[4][extract_feature(after, 0, 4, 8, 12)] += adjust;
-		net[5][extract_feature(after, 1, 5, 9, 13)] += adjust;
-		net[6][extract_feature(after, 2, 6, 10, 14)] += adjust;
-		net[7][extract_feature(after, 3, 7, 11, 15)] += adjust;
+		net[0][extract_feature(after, 0, 1, 2, 3, 4)] += adjust;
+ 		net[1][extract_feature(after, 5, 6, 7, 10, 11)] += adjust;
+		net[2][extract_feature(after, 8, 9, 12, 13, 14)] += adjust;
+		net[3][extract_feature(after, 0, 1, 2, 3, 7)] += adjust;
+		net[4][extract_feature(after, 4, 5, 6, 8, 9)] += adjust;
+		net[5][extract_feature(after, 10, 11, 13, 14, 15)] += adjust;
+		net[6][extract_feature(after, 1, 2, 3, 6, 7)] += adjust;
+		net[7][extract_feature(after, 4, 5, 8, 9, 10)] += adjust;
+		net[8][extract_feature(after, 11, 12, 13, 14, 15)] += adjust;
+		net[9][extract_feature(after, 0, 1, 2, 4, 5)] += adjust;
+		net[10][extract_feature(after, 6, 7, 9, 10, 11)] += adjust;
+		net[11][extract_feature(after, 8, 12, 13, 14, 15)] += adjust;
 	}
-
 	virtual void open_episode(const std::string &flag = ""){
 		history.clear();
 	}
