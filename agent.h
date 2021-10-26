@@ -168,6 +168,18 @@ public:
 		net[9][extract_feature(after, 0, 1, 2, 4, 5)] += adjust;
 		net[10][extract_feature(after, 6, 7, 9, 10, 11)] += adjust;
 		net[11][extract_feature(after, 8, 12, 13, 14, 15)] += adjust;
+		net[12][extract_feature(after, 0, 4, 8, 12, 13)] += adjust;
+  		net[13][extract_feature(after, 1, 2, 5, 6, 9)] += adjust;
+   		net[14][extract_feature(after, 7, 10, 11, 14, 15)] += adjust;
+   		net[15][extract_feature(after, 0, 1, 4, 8, 12)] += adjust;
+   		net[16][extract_feature(after, 5, 9, 10, 13, 14)] += adjust;
+		net[17][extract_feature(after, 2, 3, 6, 7, 11)] += adjust;
+ 		net[18][extract_feature(after, 2, 3, 7, 11, 15)] += adjust;
+   		net[19][extract_feature(after, 6, 9, 10, 13, 14)] += adjust;
+ 		net[20][extract_feature(after, 0, 1, 4, 5, 8)] += adjust;
+   		net[21][extract_feature(after, 3, 7, 11, 14, 15)] += adjust; 
+   		net[22][extract_feature(after, 1, 2, 5, 6, 10)] += adjust; 
+   		net[23][extract_feature(after, 4, 8, 9, 12, 13)] += adjust;
 	}
 	virtual void open_episode(const std::string &flag = ""){
 		history.clear();
