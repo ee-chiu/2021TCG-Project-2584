@@ -72,15 +72,6 @@ protected:
  */
 class weight_agent : public agent {
 public:
-	int opcode[4] = {0, 1, 2, 3};
-
-	struct step {
-		board::reward reward;
-		board after;
-	};
-
-	std::vector<step> history;
-
 	weight_agent(const std::string& args = "") : agent(args), alpha(0) {
 		if (meta.find("init") != meta.end())
 			init_weights(meta["init"]);
@@ -94,130 +85,32 @@ public:
 			save_weights(meta["save"]);
 	}
 
-	int extract_feature(const board &after, int a, int b, int c, int d, int e){
-		return after(a) * 25 * 25 * 25 * 25 + after(b) * 25 * 25 * 25 + after(c) * 25 * 25 + after(d) * 25 + after(e);
-	}
-
-	float estimate_value(const board &after){
-		float value = 0.0;
-		value += net[0][extract_feature(after, 0, 1, 2, 3, 4)];
-		value += net[1][extract_feature(after, 5, 6, 7, 10, 11)];
-		value += net[2][extract_feature(after, 8, 9, 12, 13, 14)];
-		value += net[3][extract_feature(after, 0, 1, 2, 3, 7)];
-		value += net[4][extract_feature(after, 4, 5, 6, 8, 9)];
-		value += net[5][extract_feature(after, 10, 11, 13, 14, 15)];
-		value += net[6][extract_feature(after, 1, 2, 3, 6, 7)];
-		value += net[7][extract_feature(after, 4, 5, 8, 9, 10)];
-		value += net[8][extract_feature(after, 11, 12, 13, 14, 15)];
-		value += net[9][extract_feature(after, 0, 1, 2, 4, 5)];
-		value += net[10][extract_feature(after, 6, 7, 9, 10, 11)];
-		value += net[11][extract_feature(after, 8, 12, 13, 14, 15)];
-		value += net[12][extract_feature(after, 0, 4, 8, 12, 13)];
-		value += net[13][extract_feature(after, 1, 2, 5, 6, 9)];
-		value += net[14][extract_feature(after, 7, 10, 11, 14, 15)];
-		value += net[15][extract_feature(after, 0, 1, 4, 8, 12)];
-		value += net[16][extract_feature(after, 5, 9, 10, 13, 14)];
-		value += net[17][extract_feature(after, 2, 3, 6, 7, 11)];
-		value += net[18][extract_feature(after, 2, 3, 7, 11, 15)];
-		value += net[19][extract_feature(after, 6, 9, 10, 13, 14)];
-		value += net[20][extract_feature(after, 0, 1, 4, 5, 8)];
-		value += net[21][extract_feature(after, 3, 7, 11, 14, 15)];
-		value += net[22][extract_feature(after, 1, 2, 5, 6, 10)];
-		value += net[23][extract_feature(after, 4, 8, 9, 12, 13)];
-		return value;
-	}
-
-	virtual action take_action(const board& before) {
-		int best_op = -1;
-		board::reward best_reward = -1;
-		float best_value = -10000000.0;
-		board best_after;
-
-		for(int op : opcode) {
-			board after = before;
-			board::reward reward = after.slide(op);
-			if(reward == -1) continue;
-
-			float value = estimate_value(after);
-			if(reward + value > best_reward + best_value){
-				best_op = op;
-				best_reward = reward;
-				best_value = value;
-				best_after = after;
-			}
-		}
-
-		if(best_op != -1) history.push_back({best_reward, best_after});
-
-		return action::slide(best_op);
-	}
-
-	void adjust_value(const board &after, float target){
-		float cur = estimate_value(after);
-		float err = target - cur;
-		float adjust = alpha * err;
-		net[0][extract_feature(after, 0, 1, 2, 3, 4)] += adjust;
- 		net[1][extract_feature(after, 5, 6, 7, 10, 11)] += adjust;
-		net[2][extract_feature(after, 8, 9, 12, 13, 14)] += adjust;
-		net[3][extract_feature(after, 0, 1, 2, 3, 7)] += adjust;
-		net[4][extract_feature(after, 4, 5, 6, 8, 9)] += adjust;
-		net[5][extract_feature(after, 10, 11, 13, 14, 15)] += adjust;
-		net[6][extract_feature(after, 1, 2, 3, 6, 7)] += adjust;
-		net[7][extract_feature(after, 4, 5, 8, 9, 10)] += adjust;
-		net[8][extract_feature(after, 11, 12, 13, 14, 15)] += adjust;
-		net[9][extract_feature(after, 0, 1, 2, 4, 5)] += adjust;
-		net[10][extract_feature(after, 6, 7, 9, 10, 11)] += adjust;
-		net[11][extract_feature(after, 8, 12, 13, 14, 15)] += adjust;
-		net[12][extract_feature(after, 0, 4, 8, 12, 13)] += adjust;
-  		net[13][extract_feature(after, 1, 2, 5, 6, 9)] += adjust;
-   		net[14][extract_feature(after, 7, 10, 11, 14, 15)] += adjust;
-   		net[15][extract_feature(after, 0, 1, 4, 8, 12)] += adjust;
-   		net[16][extract_feature(after, 5, 9, 10, 13, 14)] += adjust;
-		net[17][extract_feature(after, 2, 3, 6, 7, 11)] += adjust;
- 		net[18][extract_feature(after, 2, 3, 7, 11, 15)] += adjust;
-   		net[19][extract_feature(after, 6, 9, 10, 13, 14)] += adjust;
- 		net[20][extract_feature(after, 0, 1, 4, 5, 8)] += adjust;
-   		net[21][extract_feature(after, 3, 7, 11, 14, 15)] += adjust; 
-   		net[22][extract_feature(after, 1, 2, 5, 6, 10)] += adjust; 
-   		net[23][extract_feature(after, 4, 8, 9, 12, 13)] += adjust;
-	}
-	virtual void open_episode(const std::string &flag = ""){
-		history.clear();
-	}
-
-	virtual void close_episode(const std::string &flag = ""){
-		if(history.empty()) return;
-		if(alpha == 0) return;
-		adjust_value(history.back().after, 0);
-		for(int i = history.size() - 2 ; i >= 0 ; i--)
-			adjust_value(history[i].after, history[i + 1].reward + estimate_value(history[i + 1].after));
-	}
 protected:
 	virtual void init_weights(const std::string& info) {
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
-		net.emplace_back(25 * 25 * 25 * 25 * 25);	
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(25 * 25 * 25 * 25 * 25);
 	}
 	virtual void load_weights(const std::string& path) {
 		std::ifstream in(path, std::ios::in | std::ios::binary);
@@ -344,9 +237,117 @@ private:
 class TD_player : public weight_agent {
 public:
 	TD_player(const std::string& args = "") : weight_agent("name=TD role=player " + args) {
-		;
+		opcode = {0, 1, 2, 3};
 	}
 
+	int extract_feature(const board &after, int a, int b, int c, int d, int e){
+		return after(a) * 25 * 25 * 25 * 25 + after(b) * 25 * 25 * 25 + after(c) * 25 * 25 + after(d) * 25 + after(e);
+	}
+
+	float estimate_value(const board &after){
+		float value = 0.0;
+		value += net[0][extract_feature(after, 0, 1, 2, 3, 4)];
+		value += net[1][extract_feature(after, 5, 6, 7, 10, 11)];
+		value += net[2][extract_feature(after, 8, 9, 12, 13, 14)];
+		value += net[3][extract_feature(after, 0, 1, 2, 3, 7)];
+		value += net[4][extract_feature(after, 4, 5, 6, 8, 9)];
+		value += net[5][extract_feature(after, 10, 11, 13, 14, 15)];
+		value += net[6][extract_feature(after, 1, 2, 3, 6, 7)];
+		value += net[7][extract_feature(after, 4, 5, 8, 9, 10)];
+		value += net[8][extract_feature(after, 11, 12, 13, 14, 15)];
+		value += net[9][extract_feature(after, 0, 1, 2, 4, 5)];
+		value += net[10][extract_feature(after, 6, 7, 9, 10, 11)];
+		value += net[11][extract_feature(after, 8, 12, 13, 14, 15)];
+		value += net[12][extract_feature(after, 0, 4, 8, 12, 13)];
+		value += net[13][extract_feature(after, 1, 2, 5, 6, 9)];
+		value += net[14][extract_feature(after, 7, 10, 11, 14, 15)];
+		value += net[15][extract_feature(after, 0, 1, 4, 8, 12)];
+		value += net[16][extract_feature(after, 5, 9, 10, 13, 14)];
+		value += net[17][extract_feature(after, 2, 3, 6, 7, 11)];
+		value += net[18][extract_feature(after, 2, 3, 7, 11, 15)];
+		value += net[19][extract_feature(after, 6, 9, 10, 13, 14)];
+		value += net[20][extract_feature(after, 0, 1, 4, 5, 8)];
+		value += net[21][extract_feature(after, 3, 7, 11, 14, 15)];
+		value += net[22][extract_feature(after, 1, 2, 5, 6, 10)];
+		value += net[23][extract_feature(after, 4, 8, 9, 12, 13)];
+		return value;
+	}
+
+	struct step{
+		board::reward reward;
+		board after;
+	};
+
+	std::vector<step> history;
+
+	virtual action take_action(const board& before) {
+		int best_op = -1;
+		board::reward best_reward = -1;
+		float best_value = -1000000.0;
+		board best_after;
+
+		for(int op : opcode){
+			board after = before;
+			board::reward reward = after.slide(op);
+
+			if(reward < 0) continue;
+
+			float value = estimate_value(after);
+
+			if(reward + value > best_reward + best_value){
+				best_op = op;
+				best_reward = reward;
+				best_value = value;
+				best_after = after;
+			}
+		}
+
+		if(best_op != -1)	history.push_back({best_reward, best_after});
+
+		return action::slide(best_op);
+	}
+
+	void adjust_value(const board &after, int target){
+		float cur = estimate_value(after);
+		float err = target - cur;
+		float adjust = alpha * err;
+		net[0][extract_feature(after, 0, 1, 2, 3, 4)] += adjust;
+		net[1][extract_feature(after, 5, 6, 7, 10, 11)] += adjust;
+		net[2][extract_feature(after, 8, 9, 12, 13, 14)] += adjust;
+		net[3][extract_feature(after, 0, 1, 2, 3, 7)] += adjust;
+		net[4][extract_feature(after, 4, 5, 6, 8, 9)] += adjust;
+		net[5][extract_feature(after, 10, 11, 13, 14, 15)] += adjust;
+		net[6][extract_feature(after, 1, 2, 3, 6, 7)] += adjust;
+		net[7][extract_feature(after, 4, 5, 8, 9, 10)] += adjust;
+		net[8][extract_feature(after, 11, 12, 13, 14, 15)] += adjust;
+		net[9][extract_feature(after, 0, 1, 2, 4, 5)] += adjust;
+		net[10][extract_feature(after, 6, 7, 9, 10, 11)] += adjust;
+		net[11][extract_feature(after, 8, 12, 13, 14, 15)] += adjust;
+		net[12][extract_feature(after, 0, 4, 8, 12, 13)] += adjust;
+		net[13][extract_feature(after, 1, 2, 5, 6, 9)] += adjust;
+		net[14][extract_feature(after, 7, 10, 11, 14, 15)] += adjust;
+		net[15][extract_feature(after, 0, 1, 4, 8, 12)] += adjust;
+		net[16][extract_feature(after, 5, 9, 10, 13, 14)] += adjust;
+		net[17][extract_feature(after, 2, 3, 6, 7, 11)] += adjust;
+		net[18][extract_feature(after, 2, 3, 7, 11, 15)] += adjust;
+		net[19][extract_feature(after, 6, 9, 10, 13, 14)] += adjust;
+		net[20][extract_feature(after, 0, 1, 4, 5, 8)] += adjust;
+		net[21][extract_feature(after, 3, 7, 11, 14, 15)] += adjust;
+		net[22][extract_feature(after, 1, 2, 5, 6, 10)] += adjust;
+		net[23][extract_feature(after, 4, 8, 9, 12, 13)] += adjust;
+	}
+	void open_episode(const std::string &flag = ""){
+		history.clear();
+	}
+
+	void close_episode(const std::string &flag = ""){
+		if(history.size() == 0) return;
+		if(alpha == 0) return;
+
+		adjust_value(history.back().after, 0);
+		for(int i = history.size() - 2 ; i >= 0 ; i--)
+			adjust_value(history[i].after, history[i+1].reward + estimate_value(history[i+1].after));
+	} 
 private:
 	std::array<int, 4> opcode;
 	int play_style;
