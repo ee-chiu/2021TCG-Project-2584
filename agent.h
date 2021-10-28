@@ -87,30 +87,30 @@ public:
 
 protected:
 	virtual void init_weights(const std::string& info) {
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
-		net.emplace_back(25 * 25 * 25 * 25 * 25);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		net.emplace_back(28 * 28 * 28 * 28 * 28);
 	}
 	virtual void load_weights(const std::string& path) {
 		std::ifstream in(path, std::ios::in | std::ios::binary);
@@ -241,7 +241,7 @@ public:
 	}
 
 	int extract_feature(const board &after, int a, int b, int c, int d, int e){
-		return after(a) * 25 * 25 * 25 * 25 + after(b) * 25 * 25 * 25 + after(c) * 25 * 25 + after(d) * 25 + after(e);
+		return after(a) * 28 * 28 * 28 * 28 + after(b) * 28 * 28 * 28 + after(c) * 28 * 28 + after(d) * 28 + after(e);
 	}
 
 	float estimate_value(const board &after){
