@@ -87,30 +87,11 @@ public:
 
 protected:
 	virtual void init_weights(const std::string& info) {
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
-		net.emplace_back(28 * 28 * 28 * 28 * 28);
+		for(int i = 1 ; i <= 24 ; i++)
+			net.emplace_back(31 * 31 * 31 * 31 * 31);
+
+		for(int i = 1 ; i <= 8 ; i++)
+			net.emplace_back(31 * 31 * 31 * 31);
 	}
 	virtual void load_weights(const std::string& path) {
 		std::ifstream in(path, std::ios::in | std::ios::binary);
@@ -241,7 +222,11 @@ public:
 	}
 
 	int extract_feature(const board &after, int a, int b, int c, int d, int e){
-		return after(a) * 28 * 28 * 28 * 28 + after(b) * 28 * 28 * 28 + after(c) * 28 * 28 + after(d) * 28 + after(e);
+		return after(a) * 31 * 31 * 31 * 31 + after(b) * 31 * 31 * 31 + after(c) * 31 * 31 + after(d) * 31 + after(e);
+	}
+
+	int extract_feature2(const board &after, int a, int b, int c, int d){
+		return after(a) * 31 * 31 * 31 + after(b) * 31 * 31 + after(c) * 31 + after(d);
 	}
 
 	float estimate_value(const board &after){
@@ -270,6 +255,15 @@ public:
 		value += net[21][extract_feature(after, 3, 7, 11, 14, 15)];
 		value += net[22][extract_feature(after, 1, 2, 5, 6, 10)];
 		value += net[23][extract_feature(after, 4, 8, 9, 12, 13)];
+
+		value += net[24][extract_feature2(after, 0, 1, 2, 3)];
+		value += net[25][extract_feature2(after, 4, 5, 6, 7)];
+		value += net[26][extract_feature2(after, 8, 9, 10, 11)];
+		value += net[27][extract_feature2(after, 12, 13, 14, 15)];
+		value += net[28][extract_feature2(after, 0, 4, 8, 12)];
+		value += net[29][extract_feature2(after, 1, 5, 9, 13)];
+		value += net[30][extract_feature2(after, 2, 6, 10, 14)];
+		value += net[31][extract_feature2(after, 3, 7, 11, 15)];
 		return value;
 	}
 
