@@ -274,6 +274,59 @@ public:
 
 	std::vector<step> history;
 
+	float expect_value(const board &after){
+		std::vector<int> empty_tile;
+		int num_empty = 0;
+		for(int i = 0 ; i < 16 ; i++){
+			if(after(i) == 0){
+				num_empty++;
+				empty_tile.push_back(i);
+			} 
+		}
+
+		float value = 0.0;
+		for(int i : empty_tile){
+			board state1 = after;
+			state1.tile[i / 4][i % 4] = 1;
+			board::reward best_reward1 = -1;
+			float best_value1 = -std::numeric_limits<float>::max();
+
+			for(int op1 : opcode){
+				board after1 = state1;
+				board::reward reward1 = after1.slide(op1);
+				if(reward1 < 0) continue;
+				
+				float value1 = estimate_value(after1);
+				if(reward1 + value1 > best_reward1 + best_value1) {
+					best_reward1 = reward1;
+					best_value1 = value1;
+				}
+			}
+
+			board state2 = after;
+			state2.tile[i / 4][i % 4] = 2;
+			board::reward best_reward2 = -1;
+			float best_value2 = -std::numeric_limits<float>::max();
+
+			for(int op2 : opcode){
+				board after2 = state2;
+				board::reward reward2 = after2.slide(op2);
+				if(reward2 < 0) continue;
+
+				float value2 = estimate_value(after2);
+				if(reward2 + value2 > best_reward2 + best_value2) {
+					best_reward2 = reward2;
+					best_value2 = value2;
+				}			
+			}
+
+			value += (float(0.9) * best_value1) / float(2 * num_empty);
+			value += (float(0.1) * best_value2) / float(2 * num_empty);
+		}
+
+		return value;
+	}
+
 	virtual action take_action(const board& before) {
 		int best_op = -1;
 		board::reward best_reward = -1;
@@ -286,7 +339,7 @@ public:
 
 			if(reward < 0) continue;
 
-			float value = estimate_value(after);
+			float value = expect_value(after);
 
 			if(reward + value > best_reward + best_value){
 				best_op = op;
