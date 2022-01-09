@@ -219,6 +219,11 @@ class TD_player : public weight_agent {
 public:
 	TD_player(const std::string& args = "") : weight_agent("name=TD role=player " + args) {
 		opcode = {0, 1, 2, 3};
+		n_step = 1;
+
+		if(meta.find("n") != meta.end()) n_step = int(meta["n"]);
+
+		std::cout << "n_step: " << n_step << "\n";
 	}
 
 	int extract_feature(const board &after, int a, int b, int c, int d, int e){
@@ -320,8 +325,8 @@ public:
 				}			
 			}
 
-			value += (float(0.9) * best_value1) / float(2 * num_empty);
-			value += (float(0.1) * best_value2) / float(2 * num_empty);
+			value += (float(0.9) * best_value1) / float(num_empty);
+			value += (float(0.1) * best_value2) / float(num_empty);
 		}
 
 		return value;
@@ -381,7 +386,16 @@ public:
 		net[20][extract_feature(after, 0, 1, 4, 5, 8)] += adjust;
 		net[21][extract_feature(after, 3, 7, 11, 14, 15)] += adjust;
 		net[22][extract_feature(after, 1, 2, 5, 6, 10)] += adjust;
-		net[23][extract_feature(after, 4, 8, 9, 12, 13)] += adjust;
+		net[23][extract_feature(after, 4, 8, 9, 12, 13)] += adjust;	
+
+		net[24][extract_feature2(after, 0, 1, 2, 3)] += adjust;	
+		net[25][extract_feature2(after, 4, 5, 6, 7)] += adjust;	
+		net[26][extract_feature2(after, 8, 9, 10, 11)] += adjust;	
+		net[27][extract_feature2(after, 12, 13, 14, 15)] += adjust;	
+		net[28][extract_feature2(after, 0, 4, 8, 12)] += adjust;	
+		net[29][extract_feature2(after, 1, 5, 9, 13)] += adjust;	
+		net[30][extract_feature2(after, 2, 6, 10, 14)] += adjust;	
+		net[31][extract_feature2(after, 3, 7, 11, 15)] += adjust;	
 	}
 	void open_episode(const std::string &flag = ""){
 		history.clear();
@@ -392,10 +406,23 @@ public:
 		if(alpha == 0) return;
 
 		adjust_value(history.back().after, 0);
-		for(int i = history.size() - 2 ; i >= 0 ; i--)
-			adjust_value(history[i].after, history[i+1].reward + estimate_value(history[i+1].after));
+		for(int i = history.size() - 2 ; i >= 0 ; i--){
+			board::reward total_reward = 0;
+			for(int j = 1 ; j <= n_step ; j++){
+				if(i + j >= int(history.size())) break;
+				total_reward += history[i + j].reward;
+			}
+
+			if(i + n_step >= int(history.size())){
+				adjust_value(history[i].after, total_reward);
+				continue;
+			}
+
+			adjust_value(history[i].after, total_reward + estimate_value(history[i + n_step].after));
+		}
 	} 
 private:
 	std::array<int, 4> opcode;
 	int play_style;
+	int n_step;
 };
